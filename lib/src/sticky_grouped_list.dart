@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -42,8 +43,7 @@ class StickyGroupedListView<T, E> extends StatefulWidget {
 
   /// Called to build children for the list with
   /// 0 <= element, index < elements.length
-  final Widget Function(BuildContext context, T element, int index)?
-      indexedItemBuilder;
+  final Widget Function(BuildContext context, T element, int index)? indexedItemBuilder;
 
   /// Used to clearly indentify an element. The returned value can be of any
   /// type but must be unique for each element.
@@ -173,8 +173,7 @@ class StickyGroupedListView<T, E> extends StatefulWidget {
 }
 
 @internal
-class StickyGroupedListViewState<T, E>
-    extends State<StickyGroupedListView<T, E>> {
+class StickyGroupedListViewState<T, E> extends State<StickyGroupedListView<T, E>> {
   /// Used within [GroupedItemScrollController].
   @protected
   List<T> sortedElements = [];
@@ -260,18 +259,15 @@ class StickyGroupedListViewState<T, E>
             if (index == hiddenIndex) {
               return Opacity(
                 opacity: 0,
-                child:
-                    widget.groupSeparatorBuilder(sortedElements[actualIndex]),
+                child: widget.groupSeparatorBuilder(sortedElements[actualIndex]),
               );
             }
 
             if (_isSeparator!(index)) {
               E curr = widget.groupBy(sortedElements[actualIndex]);
-              E prev = widget.groupBy(
-                  sortedElements[actualIndex + (widget.reverse ? 1 : -1)]);
+              E prev = widget.groupBy(sortedElements[actualIndex + (widget.reverse ? 1 : -1)]);
               if (prev != curr) {
-                return widget
-                    .groupSeparatorBuilder(sortedElements[actualIndex]);
+                return widget.groupSeparatorBuilder(sortedElements[actualIndex]);
               }
               return widget.separator;
             }
@@ -290,13 +286,12 @@ class StickyGroupedListViewState<T, E>
   Widget _buildItem(context, int actualIndex) {
     return widget.indexedItemBuilder == null
         ? widget.itemBuilder!(context, sortedElements[actualIndex])
-        : widget.indexedItemBuilder!(
-            context, sortedElements[actualIndex], actualIndex);
+        : widget.indexedItemBuilder!(context, sortedElements[actualIndex], actualIndex);
   }
 
   _positionListener() {
-    _headerBox ??=
-        _groupHeaderKey?.currentContext?.findRenderObject() as RenderBox?;
+    _topElementIndex = min(_topElementIndex, widget.elements.length - 1);
+    _headerBox ??= _groupHeaderKey?.currentContext?.findRenderObject() as RenderBox?;
     double headerHeight = _headerBox?.size.height ?? 0;
     _listBox ??= _key.currentContext?.findRenderObject() as RenderBox?;
     double height = _listBox?.size.height ?? 0;
@@ -310,9 +305,8 @@ class StickyGroupedListViewState<T, E>
     }
 
     ItemPosition currentItem = _listener.itemPositions.value
-        .where((ItemPosition position) =>
-            !_isSeparator!(position.index) &&
-            position.itemTrailingEdge > headerDimension!)
+        .where(
+            (ItemPosition position) => !_isSeparator!(position.index) && position.itemTrailingEdge > headerDimension!)
         .reduce(reducePositions);
 
     int index = currentItem.index ~/ 2;
@@ -333,11 +327,9 @@ class StickyGroupedListViewState<T, E>
         int? compareResult;
         // compare groups
         if (widget.groupComparator != null) {
-          compareResult =
-              widget.groupComparator!(widget.groupBy(e1), widget.groupBy(e2));
+          compareResult = widget.groupComparator!(widget.groupBy(e1), widget.groupBy(e2));
         } else if (widget.groupBy(e1) is Comparable) {
-          compareResult = (widget.groupBy(e1) as Comparable)
-              .compareTo(widget.groupBy(e2) as Comparable);
+          compareResult = (widget.groupBy(e1) as Comparable).compareTo(widget.groupBy(e2) as Comparable);
         }
         // compare elements inside group
         if (compareResult == null || compareResult == 0) {
@@ -359,10 +351,10 @@ class StickyGroupedListViewState<T, E>
   Widget _showFixedGroupHeader(int index) {
     if (widget.elements.isNotEmpty) {
       _groupHeaderKey = GlobalKey();
+      index = min(index, widget.elements.length - 1);
       return Container(
         key: _groupHeaderKey,
-        color:
-            widget.floatingHeader ? null : widget.stickyHeaderBackgroundColor,
+        color: widget.floatingHeader ? null : widget.stickyHeaderBackgroundColor,
         width: widget.floatingHeader ? null : MediaQuery.of(context).size.width,
         child: widget.groupSeparatorBuilder(sortedElements[index]),
       );
