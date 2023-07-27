@@ -322,26 +322,26 @@ class StickyGroupedListViewState<T, E> extends State<StickyGroupedListView<T, E>
 
   List<T> _sortElements() {
     List<T> elements = widget.elements;
-    if (elements.isNotEmpty) {
-      elements.sort((e1, e2) {
-        int? compareResult;
-        // compare groups
-        if (widget.groupComparator != null) {
-          compareResult = widget.groupComparator!(widget.groupBy(e1), widget.groupBy(e2));
-        } else if (widget.groupBy(e1) is Comparable) {
-          compareResult = (widget.groupBy(e1) as Comparable).compareTo(widget.groupBy(e2) as Comparable);
-        }
-        // compare elements inside group
-        if (compareResult == null || compareResult == 0) {
-          if (widget.itemComparator != null) {
-            compareResult = widget.itemComparator!(e1, e2);
-          } else if (e1 is Comparable) {
-            compareResult = e1.compareTo(e2);
-          }
-        }
-        return compareResult!;
-      });
-    }
+    // if (elements.isNotEmpty) {
+    //   elements.sort((e1, e2) {
+    //     int? compareResult;
+    //     // compare groups
+    //     if (widget.groupComparator != null) {
+    //       compareResult = widget.groupComparator!(widget.groupBy(e1), widget.groupBy(e2));
+    //     } else if (widget.groupBy(e1) is Comparable) {
+    //       compareResult = (widget.groupBy(e1) as Comparable).compareTo(widget.groupBy(e2) as Comparable);
+    //     }
+    //     // compare elements inside group
+    //     if (compareResult == null || compareResult == 0) {
+    //       if (widget.itemComparator != null) {
+    //         compareResult = widget.itemComparator!(e1, e2);
+    //       } else if (e1 is Comparable) {
+    //         compareResult = e1.compareTo(e2);
+    //       }
+    //     }
+    //     return compareResult!;
+    //   });
+    // }
     if (widget.order == StickyGroupedListOrder.DESC) {
       elements = elements.reversed.toList();
     }
